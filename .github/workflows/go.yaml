@@ -1,0 +1,45 @@
+name: Run Tests and Build
+
+on: [push]
+
+env:
+  CI: true
+  GO111MODULE: on
+  GOPROXY: https://proxy.golang.org
+  GOPATH: /home/runner/work/yarn-exporter/yarn-exporter
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        go: [1.14, 1.15]
+    name: ${{ matrix.os }} @ Go ${{ matrix.go }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set up Go ${{ matrix.go }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set GOPATH and PATH
+        run: |
+          echo "GOPATH=$(dirname $GITHUB_WORKSPACE)" >> $GITHUB_ENV
+          echo "$(dirname $GITHUB_WORKSPACE)/bin" >> $GITHUB_PATH
+        shell: bash
+      - name: Run golint
+        run: |
+          go get -t -v golang.org/x/lint/golint
+          golint -set_exit_status ./...
+      - name: Run gofmt
+        run: |
+          diff -u <(echo -n) <(gofmt -d -e .)
+      - name: Run go vet
+        run: |
+          go vet -v ./...
+      - name: Run Unit Tests
+        run: |
+          go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
