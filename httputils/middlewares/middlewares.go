@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 
 	"github.com/viaduct-ai/vgo/jwtutils"
 	"github.com/viaduct-ai/vgo/log"
@@ -69,29 +68,4 @@ func LoggingMiddleware(l log.Logger, next http.Handler) http.Handler {
 	})
 
 	return logHandler
-}
-
-// EnvoyProxyMiddleware modifies the request with envoy proxy specific headers
-//
-// Ideally, we should not add additional header information here.
-// This should be through envoy header manipulation
-// https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers#custom-request-response-headers
-func EnvoyProxyMiddleware(next http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		if path := r.Header.Get(envoyOriginalPath); path != "" {
-			orgURL, err := url.Parse(path)
-
-			if err == nil {
-				r.URL.Path = orgURL.Path
-			}
-
-			// https://stackoverflow.com/questions/42921567/what-is-the-difference-between-host-and-url-host-for-golang-http-request
-			// The request went through an envoy proxy, so update the URL host to match the original reqest host
-			r.URL.Host = r.Host
-		}
-
-		next.ServeHTTP(w, r)
-	}
-
-	return http.HandlerFunc(fn)
 }
