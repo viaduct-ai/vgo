@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	jwtRequest "github.com/dgrijalva/jwt-go/request"
+	jwtRequest "github.com/golang-jwt/jwt/request"
 
 	"github.com/viaduct-ai/vgo/jwtutils"
 )
