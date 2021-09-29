@@ -3,8 +3,8 @@ package jwtutils
 import (
 	"net/http"
 
-	"github.com/dgrijalva/jwt-go"
-	jwtRequest "github.com/dgrijalva/jwt-go/request"
+	"github.com/golang-jwt/jwt"
+	jwtRequest "github.com/golang-jwt/jwt/request"
 )
 
 // jwtParser for strictly parsing, not validating, a JWT token.
